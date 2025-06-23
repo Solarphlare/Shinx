@@ -37,8 +37,8 @@ namespace db::voice {
         bsoncxx::builder::basic::document doc_builder;
         doc_builder.append(
             bsoncxx::builder::basic::kvp("_id", apartment_id.str()),
-            bsoncxx::builder::basic::kvp("owner_id", bsoncxx::types::b_int64{(int64_t) owner_id}),
-            bsoncxx::builder::basic::kvp("guild_id", bsoncxx::types::b_int64{(int64_t) guild_id})
+            bsoncxx::builder::basic::kvp("owner_id", (int64_t) owner_id),
+            bsoncxx::builder::basic::kvp("guild_id", (int64_t) guild_id)
         );
 
         database["apartments"].insert_one(doc_builder.view());
@@ -50,5 +50,20 @@ namespace db::voice {
         filter_builder.append(bsoncxx::builder::basic::kvp("_id", apartment_id.str()));
 
         database["apartments"].delete_one(filter_builder.view());
+    }
+
+    void transfer_apartment(const dpp::snowflake& apartment_id, const dpp::snowflake& new_owner_id) {
+        mongocxx::database& database = db::get_database();
+        bsoncxx::builder::basic::document filter_builder;
+        filter_builder.append(bsoncxx::builder::basic::kvp("_id", apartment_id.str()));
+
+        bsoncxx::builder::basic::document update_builder;
+        update_builder.append(
+            bsoncxx::builder::basic::kvp("$set", bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("owner_id", (int64_t) new_owner_id)
+            ))
+        );
+
+        database["apartments"].update_one(filter_builder.view(), update_builder.view());
     }
 }

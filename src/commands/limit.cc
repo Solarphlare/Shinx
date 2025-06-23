@@ -6,8 +6,9 @@
 
 namespace commands::limit {
     dpp::task<void> execute(const dpp::slashcommand_t& event) {
+        if (!(co_await util::check_voice_command_requirements(event))) co_return;
+        
         dpp::snowflake current_channel_id = user_locations[event.command.usr.id];
-        if (!(co_await util::check_voice_command_requirements(event, current_channel_id))) co_return;
 
         auto subcommand = event.command.get_command_interaction().options[0];
         const uint8_t new_limit = (uint8_t) subcommand.get_value<long>(0);

@@ -6,8 +6,9 @@
 
 namespace commands::name {
     dpp::task<void> execute(const dpp::slashcommand_t& event) {
+        if (!(co_await util::check_voice_command_requirements(event))) co_return;
+
         dpp::snowflake current_channel_id = user_locations[event.command.usr.id];
-        if (!(co_await util::check_voice_command_requirements(event, current_channel_id))) co_return;
 
         auto subcommand = event.command.get_command_interaction().options[0];
         std::string new_name = subcommand.get_value<std::string>(0);
