@@ -7,6 +7,7 @@
 #include "commands/name.h"
 #include "commands/limit.h"
 #include "commands/permit.h"
+#include "commands/claim.h"
 
 #include "db/voice_interface.h"
 
@@ -15,7 +16,8 @@ std::unordered_map<std::string, std::function<dpp::task<void>(const dpp::slashco
     {"unlock", commands::unlock::execute},
     {"name", commands::name::execute},
     {"limit", commands::limit::execute},
-    {"permit", commands::permit::execute}
+    {"permit", commands::permit::execute},
+    {"claim", commands::claim::execute}
 };
 
 namespace events {
