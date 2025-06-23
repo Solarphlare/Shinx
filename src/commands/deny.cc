@@ -1,11 +1,12 @@
-#include "permit.h"
+#include "deny.h"
 #include <dpp/dpp.h>
 #include <format>
+#include <algorithm>
 #include "util/command_checks.h"
 #include "util/util.h"
 #include "globals/voice_globals.h"
 
-namespace commands::permit {
+namespace commands::deny {
     dpp::task<void> execute(const dpp::slashcommand_t& event) {
         if (!(co_await util::check_voice_command_requirements(event))) co_return;
 
@@ -15,12 +16,12 @@ namespace commands::permit {
         dpp::user target_user = event.command.get_resolved_user(subcommand.get_value<dpp::snowflake>(0));
 
         if (target_user.is_bot()) {
-            co_await event.co_reply(dpp::message("You can't grant access to a bot.").set_flags(dpp::m_ephemeral));
+            co_await event.co_reply(dpp::message("You can't deny access to a bot.").set_flags(dpp::m_ephemeral));
             co_return;
         }
 
         if (target_user.id == event.command.usr.id) {
-            co_await event.co_reply(dpp::message("You can't grant yourself access to an apartment that you own.").set_flags(dpp::m_ephemeral));
+            co_await event.co_reply(dpp::message("You can't deny yourself access to an apartment that you own!").set_flags(dpp::m_ephemeral));
             co_return;
         }
 
@@ -32,12 +33,12 @@ namespace commands::permit {
                 return overwrite.id == target_user.id && overwrite.type == dpp::ot_member;
             });
 
-        if (target_user_overwrite_it != channel_permissions.end() && target_user_overwrite_it->allow & dpp::p_connect) {
-            co_await event.co_reply(dpp::message(std::format("{} already has access to your apartment.", target_user.get_mention())).set_flags(dpp::m_ephemeral));
+        if (target_user_overwrite_it != channel_permissions.end() && target_user_overwrite_it->deny & dpp::p_connect) {
+            co_await event.co_reply(dpp::message(std::format("{} already doesn't have access to your apartment.", target_user.get_mention())).set_flags(dpp::m_ephemeral));
             co_return;
         }
 
-        channel.add_permission_overwrite(target_user.id, dpp::ot_member, dpp::p_connect, 0);
+        channel.add_permission_overwrite(target_user.id, dpp::ot_member, 0, dpp::p_connect);
 
         dpp::confirmation_callback_t callback = co_await event.owner->co_channel_edit(channel);
         if (callback.is_error()) {
@@ -45,6 +46,12 @@ namespace commands::permit {
             co_return;
         }
 
-        co_await event.co_reply(dpp::message(std::format("{} has been granted access to your apartment.", target_user.get_mention())).set_flags(dpp::m_ephemeral));
+        auto target_user_location = user_locations.find(target_user.id);
+
+        if (target_user_location != user_locations.end() && target_user_location->second == current_channel_id) {
+            co_await event.owner->co_guild_member_move(0, event.command.guild_id, target_user.id);
+        }
+
+        co_await event.co_reply(dpp::message(std::format("{} has been denied access to your apartment.", target_user.get_mention())).set_flags(dpp::m_ephemeral));
     }
 }

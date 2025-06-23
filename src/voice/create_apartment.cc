@@ -1,8 +1,13 @@
 #include "create_apartment.h"
 #include <dpp/dpp.h>
+#include <bsoncxx/builder/stream/document.hpp>
 #include "globals/voice_globals.h"
 #include "constants.h"
 #include "db/voice_interface.h"
+#include "db/mongo_instance.h"
+
+using bsoncxx::builder::basic::make_document;
+using bsoncxx::builder::basic::kvp;
 
 namespace voice {
     dpp::task<void> create_apartment(const dpp::voice_state_update_t& event) {
@@ -14,7 +19,26 @@ namespace voice {
         dpp::guild_member member = callback.get<dpp::guild_member>();
 
         dpp::channel new_channel = dpp::channel();
-        new_channel.set_name(member.get_user()->global_name + "'s Apartment");
+
+        auto& database = db::get_database();
+        auto config_db = database["user_config"];
+
+        auto result = config_db.find_one(make_document(kvp("_id", member.user_id.str())));
+
+        if (!result) {
+            new_channel.set_name(member.get_user()->global_name + "'s Apartment");
+        }
+        else {
+            auto default_name = result->view().find("default_apartment_name");
+
+            if (default_name == result->view().end()) {
+                new_channel.set_name(member.get_user()->global_name + "'s Apartment");
+            }
+            else {
+                new_channel.set_name(std::string(default_name->get_string()));
+            }
+        }
+
         new_channel.set_parent_id(VOICE_CHANNEL_CATEGORY_ID);
         new_channel.set_type(dpp::channel_type::CHANNEL_VOICE);
         new_channel.set_guild_id(event.state.guild_id);
