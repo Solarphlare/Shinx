@@ -2,13 +2,13 @@
 #include <unordered_map>
 #include <functional>
 
-#include "commands/lock.h"
-#include "commands/unlock.h"
-#include "commands/name.h"
-#include "commands/limit.h"
-#include "commands/permit.h"
-#include "commands/claim.h"
-#include "commands/deny.h"
+#include "commands/voice/lock.h"
+#include "commands/voice/unlock.h"
+#include "commands/voice/name.h"
+#include "commands/voice/limit.h"
+#include "commands/voice/permit.h"
+#include "commands/voice/claim.h"
+#include "commands/voice/deny.h"
 
 #include "commands/config/default_name.h"
 
