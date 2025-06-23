@@ -67,6 +67,8 @@ namespace voice {
         db::voice::add_apartment(event.state.user_id, created_channel.id, event.state.guild_id);
         user_locations[event.state.user_id] = created_channel.id;
 
-        // todo: send kickoff message
+        co_await event.owner->co_message_create(
+            dpp::message("Welcome to your apartment. Check out /voice for commands you can use to customize your apartment and manage who can join.").set_channel_id(created_channel.id)
+        );
     }
 }
