@@ -22,6 +22,6 @@ namespace commands::permit {
             co_return;
         }
 
-        co_await event.co_reply(dpp::message(std::format("{} has been granted access to your apartment.", target_user.get_mention())));
+        co_await event.co_reply(dpp::message(std::format("{} has been granted access to your apartment.", target_user.get_mention())).set_flags(dpp::m_ephemeral));
     }
 }
