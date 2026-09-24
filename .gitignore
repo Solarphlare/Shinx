@@ -2,3 +2,5 @@ src/include/config.h
 .vscode/
 build/
 riolu
+config.h
+include/constants.h

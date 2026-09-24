@@ -16,7 +16,7 @@ namespace db::voice {
         std::vector<dpp::snowflake> stale_apartments;
 
         for (const auto& doc : cursor) {
-            dpp::snowflake apartment_id = doc["_id"].get_string().value;
+            dpp::snowflake apartment_id = static_cast<std::string>(doc["_id"].get_string().value);
             dpp::snowflake owner_id = doc["owner_id"].get_int64().value;
             dpp::snowflake guild_id = doc["guild_id"].get_int64().value;
 

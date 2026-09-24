@@ -1,3 +1,4 @@
+#include "events/slash_command_handler.h"
 #include <dpp/dpp.h>
 #include <unordered_map>
 #include <functional>
@@ -46,7 +47,7 @@ namespace events {
             auto subcommand = event.command.get_command_interaction().options[0];
 
             if (subcommand.name == "set") {
-                auto option = subcommand.get_value<long>(0);
+                auto option = subcommand.get_value<int64_t>(0);
                 auto option_val = static_cast<config_option>(option);
 
                 if (config_set_commands.find(option_val) != config_set_commands.end()) {
@@ -54,7 +55,7 @@ namespace events {
                 }
             }
             else if (subcommand.name == "reset") {
-                auto option = subcommand.get_value<long>(0);
+                auto option = subcommand.get_value<int64_t>(0);
                 auto option_val = static_cast<config_option>(option);
 
                 if (config_reset_commands.find(option_val) != config_reset_commands.end()) {

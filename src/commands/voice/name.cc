@@ -1,4 +1,4 @@
-#include "name.h"
+#include "commands/voice/name.h"
 #include <dpp/dpp.h>
 #include "globals/voice_globals.h"
 #include "util/util.h"

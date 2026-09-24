@@ -1,4 +1,4 @@
-#include "default_name.h"
+#include "commands/config/default_name.h"
 #include <dpp/dpp.h>
 #include "db/mongo_instance.h"
 #include <bsoncxx/builder/stream/document.hpp>

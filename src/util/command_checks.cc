@@ -1,4 +1,4 @@
-#include "command_checks.h"
+#include "util/command_checks.h"
 #include <dpp/dpp.h>
 #include "db/voice_interface.h"
 #include "globals/voice_globals.h"

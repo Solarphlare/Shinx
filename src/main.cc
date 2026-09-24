@@ -6,8 +6,8 @@
 #include "events/slash_command_handler.h"
 #include "util/voice_state_cache.h"
 
-#include "commands/lock.h"
-#include "commands/unlock.h"
+#include "commands/voice/lock.h"
+#include "commands/voice/unlock.h"
 
 static dpp::cluster bot{BOT_TOKEN};
 

@@ -1,4 +1,4 @@
-#include "deny.h"
+#include "commands/voice/deny.h"
 #include <dpp/dpp.h>
 #include <format>
 #include <algorithm>

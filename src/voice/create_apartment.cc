@@ -1,4 +1,4 @@
-#include "create_apartment.h"
+#include "voice/create_apartment.h"
 #include <dpp/dpp.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include "globals/voice_globals.h"
@@ -35,7 +35,7 @@ namespace voice {
                 new_channel.set_name(member.get_user()->global_name + "'s Apartment");
             }
             else {
-                new_channel.set_name(std::string(default_name->get_string()));
+                new_channel.set_name(static_cast<std::string>(default_name->get_string().value));
             }
         }
 

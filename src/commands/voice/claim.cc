@@ -1,4 +1,4 @@
-#include "claim.h"
+#include "commands/voice/claim.h"
 #include <dpp/dpp.h>
 #include <iostream>
 #include <format>

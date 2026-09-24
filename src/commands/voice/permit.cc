@@ -1,4 +1,4 @@
-#include "permit.h"
+#include "commands/voice/permit.h"
 #include <dpp/dpp.h>
 #include <format>
 #include "util/command_checks.h"
