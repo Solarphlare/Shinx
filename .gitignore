@@ -1,6 +1,5 @@
 src/include/config.h
 .vscode/
 build/
-riolu
+shinx
 config.h
-include/constants.h
