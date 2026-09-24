@@ -1,3 +1,0 @@
-#pragma once
-#define LOBBY_CHANNEL_ID 0ULL
-#define VOICE_CHANNEL_CATEGORY_ID 0ULL

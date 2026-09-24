@@ -1,6 +1,8 @@
 #include "voice/create_apartment.h"
+
 #include <dpp/dpp.h>
 #include <bsoncxx/builder/stream/document.hpp>
+
 #include "globals/voice_globals.h"
 #include "constants.h"
 #include "db/voice_interface.h"
@@ -11,12 +13,12 @@ using bsoncxx::builder::basic::kvp;
 
 namespace voice {
     dpp::task<void> create_apartment(const dpp::voice_state_update_t& event) {
-        dpp::confirmation_callback_t callback = co_await event.owner->co_guild_get_member(event.state.guild_id, event.state.user_id);
-        if (callback.is_error()) {
+        dpp::confirmation_callback_t guild_member_callback = co_await event.owner->co_guild_get_member(event.state.guild_id, event.state.user_id);
+        if (guild_member_callback.is_error()) {
             co_return;
         }
 
-        dpp::guild_member member = callback.get<dpp::guild_member>();
+        dpp::guild_member member = guild_member_callback.get<dpp::guild_member>();
 
         dpp::channel new_channel = dpp::channel();
 
@@ -24,15 +26,30 @@ namespace voice {
         auto config_db = database["user_config"];
 
         auto result = config_db.find_one(make_document(kvp("_id", member.user_id.str())));
+        std::string global_name;
+
+        if (member.get_user()) {
+            global_name = member.get_user()->global_name.empty() ? member.get_user()->username : member.get_user()->global_name;
+        }
+        else {
+            auto user_callback = co_await event.owner->co_user_get(member.user_id);
+            if (user_callback.is_error()) {
+                global_name = member.user_id.str();
+            }
+            else {
+                dpp::user_identified user = user_callback.get<dpp::user_identified>();
+                global_name = user.global_name.empty() ? user.username : user.global_name;
+            }
+        }
 
         if (!result) {
-            new_channel.set_name(member.get_user()->global_name + "'s Apartment");
+            new_channel.set_name(global_name + "'s Apartment");
         }
         else {
             auto default_name = result->view().find("default_apartment_name");
 
             if (default_name == result->view().end()) {
-                new_channel.set_name(member.get_user()->global_name + "'s Apartment");
+                new_channel.set_name(global_name + "'s Apartment");
             }
             else {
                 new_channel.set_name(static_cast<std::string>(default_name->get_string().value));
@@ -68,7 +85,7 @@ namespace voice {
         user_locations[event.state.user_id] = created_channel.id;
 
         co_await event.owner->co_message_create(
-            dpp::message("Welcome to your apartment. Check out /voice for commands you can use to customize your apartment and manage who can join.").set_channel_id(created_channel.id)
+            dpp::message("Welcome to your apartment. Check </voice:{}> for commands you can use to customize your apartment and manage who can join.").set_channel_id(created_channel.id)
         );
     }
 }
