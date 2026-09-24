@@ -27,6 +27,12 @@ int main(int argc, char** argv) {
     bot.on_ready([&argc, &argv](const dpp::ready_t &event) -> dpp::task<void> {
         std::cout << "Logged in as " << bot.me.format_username() << "\n";
 
+        std::signal(SIGINT, [](int signal) {
+            std::cout << "\nCaught SIGINT, shutting down...\n";
+            bot.shutdown();
+            std::exit(128 + signal);
+        });
+
         if (argc > 1 && std::string(argv[1]) == "--register-commands") {
             std::cout << "Registering commands...\n";
             co_await util::create_commands(bot);
