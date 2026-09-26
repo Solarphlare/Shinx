@@ -1,12 +1,11 @@
 #include "db/mongo_instance.h"
+#include <cstdlib>
 #include <mongocxx/client.hpp>
 #include <mongocxx/uri.hpp>
 #include <mongocxx/database.hpp>
 
-#include "config.h"
-
 const mongocxx::instance driver_instance{};
-const mongocxx::client client{mongocxx::uri{MONGO_URI}};
+const mongocxx::client client{mongocxx::uri{std::getenv("MONGO_URI")}};
 
 #ifdef DEBUG
 mongocxx::database database = client["riolu_test"];

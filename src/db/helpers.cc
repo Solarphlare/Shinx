@@ -4,7 +4,6 @@
 #include <mongocxx/client.hpp>
 #include <thread>
 #include <bsoncxx/builder/basic/document.hpp>
-#include "config.h"
 
 namespace db::helpers {
     void remove_stale_apartments(const std::vector<dpp::snowflake>& stale_apartments) {
@@ -21,7 +20,7 @@ namespace db::helpers {
         ))
     );
 
-    const mongocxx::client client{mongocxx::uri{MONGO_URI}};
+    const mongocxx::client client{mongocxx::uri{std::getenv("MONGO_URI")}};
 
     #ifdef DEBUG
     mongocxx::database database = client["riolu_test"];

@@ -1,7 +1,7 @@
 #include <dpp/dpp.h>
 #include <iostream>
+#include <cstdlib>
 
-#include "config.h"
 #include "events/voice_state_update.h"
 #include "events/slash_command_handler.h"
 #include "util/voice_state_cache.h"
@@ -11,7 +11,8 @@
 #include "commands/voice/lock.h"
 #include "commands/voice/unlock.h"
 
-static dpp::cluster bot{BOT_TOKEN};
+static dpp::cluster bot{std::getenv("BOT_TOKEN")};
+bool caught_signal = false;
 
 int main(int argc, char** argv) {
     bot.intents = dpp::i_default_intents | dpp::i_guild_voice_states;
@@ -28,6 +29,9 @@ int main(int argc, char** argv) {
         std::cout << "Logged in as " << bot.me.format_username() << "\n";
 
         std::signal(SIGINT, [](int signal) {
+            if (caught_signal) std::exit(128 + signal);
+            else caught_signal = true;
+
             std::cout << "\nCaught SIGINT, shutting down...\n";
             bot.shutdown();
             std::exit(128 + signal);

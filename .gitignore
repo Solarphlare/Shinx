@@ -1,5 +1,4 @@
-src/include/config.h
 .vscode/
 build/
 shinx
-config.h
+.env
