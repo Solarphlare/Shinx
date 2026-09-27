@@ -1,3 +1,4 @@
+#include "db/voice_interface.h"
 #include <dpp/dpp.h>
 #include <unordered_map>
 #include <vector>
@@ -8,8 +9,8 @@
 #include "db/helpers.h"
 
 namespace db::voice {
-    dpp::task<std::unordered_map<dpp::snowflake, dpp::snowflake>> get_apartments(dpp::cluster* bot) {
-        mongocxx::database& database = db::get_database();
+    dpp::task<std::unordered_map<dpp::snowflake, dpp::snowflake>> get_apartments(dpp::cluster* bot, const dpp::snowflake& guild_id) {
+        mongocxx::database database = db::get_database(guild_id);
         auto cursor = database["apartments"].find({});
 
         std::unordered_map<dpp::snowflake, dpp::snowflake> apartments;
@@ -52,7 +53,7 @@ namespace db::voice {
                 ))
             );
 
-            mongocxx::database& database = db::get_database();
+            mongocxx::database database = db::get_database(guild_id);
             database["apartments"].delete_many(filter_builder.view());
 
             std::cout << "Removed " << stale_apartments.size() << " stale apartment(s) from the database.\n";
@@ -66,7 +67,7 @@ namespace db::voice {
     }
 
     void add_apartment(const dpp::snowflake& owner_id, const dpp::snowflake& apartment_id, const dpp::snowflake& guild_id) {
-        mongocxx::database& database = db::get_database();
+        mongocxx::database database = db::get_database(guild_id);
         bsoncxx::builder::basic::document doc_builder;
         doc_builder.append(
             bsoncxx::builder::basic::kvp("_id", apartment_id.str()),
@@ -77,16 +78,16 @@ namespace db::voice {
         database["apartments"].insert_one(doc_builder.view());
     }
 
-    void remove_apartment(const dpp::snowflake& apartment_id) {
-        mongocxx::database& database = db::get_database();
+    void remove_apartment(const dpp::snowflake& apartment_id, const dpp::snowflake& guild_id) {
+        mongocxx::database database = db::get_database(guild_id);
         bsoncxx::builder::basic::document filter_builder;
         filter_builder.append(bsoncxx::builder::basic::kvp("_id", apartment_id.str()));
 
         database["apartments"].delete_one(filter_builder.view());
     }
 
-    void transfer_apartment(const dpp::snowflake& apartment_id, const dpp::snowflake& new_owner_id) {
-        mongocxx::database& database = db::get_database();
+    void transfer_apartment(const dpp::snowflake& apartment_id, const dpp::snowflake& new_owner_id, const dpp::snowflake& guild_id) {
+        mongocxx::database database = db::get_database(guild_id);
         bsoncxx::builder::basic::document filter_builder;
         filter_builder.append(bsoncxx::builder::basic::kvp("_id", apartment_id.str()));
 

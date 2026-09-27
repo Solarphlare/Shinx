@@ -23,7 +23,7 @@ namespace voice {
 
         dpp::channel new_channel = dpp::channel();
 
-        auto& database = db::get_database();
+        auto database = db::get_database(event.state.guild_id);
         auto config_db = database["user_config"];
 
         auto result = config_db.find_one(make_document(kvp("_id", member.user_id.str())));
@@ -77,7 +77,7 @@ namespace voice {
         }
 
         db::voice::add_apartment(event.state.user_id, created_channel.id, event.state.guild_id);
-        user_locations[event.state.user_id] = created_channel.id;
+        user_locations[event.state.guild_id][event.state.user_id] = created_channel.id;
 
         co_await event.owner->co_message_create(
             dpp::message("Welcome to your apartment. Check </voice:{}> for commands you can use to customize your apartment and manage who can join.").set_channel_id(created_channel.id)

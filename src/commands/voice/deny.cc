@@ -10,7 +10,7 @@ namespace commands::deny {
     dpp::task<void> execute(const dpp::slashcommand_t& event) {
         if (!(co_await util::check_voice_command_requirements(event))) co_return;
 
-        dpp::snowflake current_channel_id = user_locations[event.command.usr.id];
+        dpp::snowflake current_channel_id = user_locations[event.command.guild_id][event.command.usr.id];
 
         auto subcommand = event.command.get_command_interaction().options[0];
         dpp::user target_user = event.command.get_resolved_user(subcommand.get_value<dpp::snowflake>(0));
@@ -46,9 +46,9 @@ namespace commands::deny {
             co_return;
         }
 
-        auto target_user_location = user_locations.find(target_user.id);
+        auto target_user_location = user_locations[event.command.guild_id].find(target_user.id);
 
-        if (target_user_location != user_locations.end() && target_user_location->second == current_channel_id) {
+        if (target_user_location != user_locations[event.command.guild_id].end() && target_user_location->second == current_channel_id) {
             co_await event.owner->co_guild_member_move(0, event.command.guild_id, target_user.id);
         }
 

@@ -5,13 +5,13 @@
 
 namespace voice {
     dpp::task<void> handle_user_disconnect(const dpp::voice_state_update_t& event) {
-        auto it = user_locations.find(event.state.user_id);
-        if (it == user_locations.end()) {
+        auto it = user_locations[event.state.guild_id].find(event.state.user_id);
+        if (it == user_locations[event.state.guild_id].end()) {
             co_return; // user was not in an apartment
         }
 
         dpp::snowflake apartment_id = it->second;
-        user_locations.erase(it);
+        user_locations[event.state.guild_id].erase(it);
 
         dpp::confirmation_callback_t get_channel_callback = co_await event.owner->co_channel_get(apartment_id);
         if (get_channel_callback.is_error()) {
@@ -28,7 +28,7 @@ namespace voice {
                 std::cerr << "Failed to delete empty apartment: " << delete_callback.get_error().human_readable << "\n";
             }
             else {
-                db::voice::remove_apartment(apartment_id);
+                db::voice::remove_apartment(apartment_id, event.state.guild_id);
             }
         }
     }

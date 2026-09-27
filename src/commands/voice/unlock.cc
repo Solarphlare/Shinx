@@ -9,7 +9,7 @@ namespace commands::unlock {
     dpp::task<void> execute(const dpp::slashcommand_t& event) {
         if (!(co_await util::check_voice_command_requirements(event))) co_return;
 
-        dpp::snowflake current_channel_id = user_locations[event.command.usr.id];
+        dpp::snowflake current_channel_id = user_locations[event.command.guild_id][event.command.usr.id];
 
         dpp::confirmation_callback_t callback = co_await event.owner->co_channel_get(current_channel_id);
         if (callback.is_error()) {

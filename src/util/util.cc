@@ -52,5 +52,14 @@ namespace util {
 
         co_return callback.get<dpp::user_identified>();
     }
+
+    dpp::task<dpp::guild_map> get_bot_guilds(dpp::cluster* bot) {
+        dpp::confirmation_callback_t callback = co_await bot->co_current_user_get_guilds();
+        if (callback.is_error()) {
+            throw std::runtime_error("Failed to get guilds: " + callback.get_error().message);
+        }
+
+        co_return callback.get<dpp::guild_map>();
+    }
 }
 

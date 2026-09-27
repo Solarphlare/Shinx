@@ -2,4 +2,4 @@
 #include <unordered_map>
 #include <dpp/dpp.h>
 
-std::unordered_map<dpp::snowflake, dpp::snowflake> user_locations{};
+std::unordered_map<dpp::snowflake, std::unordered_map<dpp::snowflake, dpp::snowflake>> user_locations{};

@@ -16,7 +16,7 @@ namespace commands::config::default_name {
             co_return;
         }
 
-        auto& database = db::get_database();
+        auto database = db::get_database(event.command.guild_id);
         database["user_config"].update_one(
             make_document(kvp("_id", event.command.usr.id.str())),
             make_document(kvp("$set", make_document(kvp("default_apartment_name", new_default_name)))),
@@ -27,7 +27,7 @@ namespace commands::config::default_name {
     }
 
     dpp::task<void> reset(const dpp::slashcommand_t& event) {
-        auto& database = db::get_database();
+        auto database = db::get_database(event.command.guild_id);
 
         auto result = database["user_config"].find_one(make_document(kvp("_id", event.command.usr.id.str())));
         if (!result || result->find("default_apartment_name") == result->end()) {
