@@ -8,9 +8,9 @@ const mongocxx::instance driver_instance{};
 const mongocxx::client client{mongocxx::uri{std::getenv("MONGO_URI")}};
 
 #ifdef DEBUG
-mongocxx::database database = client["riolu_test"];
+mongocxx::database database = client["shinx_test"];
 #else
-mongocxx::database database = client["riolu"];
+mongocxx::database database = client["shinx"];
 #endif
 
 namespace db {
