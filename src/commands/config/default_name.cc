@@ -30,7 +30,7 @@ namespace commands::config::default_name {
         auto database = db::get_database(event.command.guild_id);
 
         auto result = database["user_config"].find_one(make_document(kvp("_id", event.command.usr.id.str())));
-        if (!result || result->find("default_apartment_name") == result->end()) {
+        if (!result || !result->view()["default_apartment_name"]) {
             co_await event.co_reply(dpp::message("You don't have a default apartment name set.").set_flags(dpp::m_ephemeral));
             co_return;
         }

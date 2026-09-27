@@ -21,7 +21,7 @@ namespace events {
         mongocxx::options::update options;
         options.upsert(true);
 
-        db::get_database(event.command.guild_id).collection("misc").update_one(
+        db::get_database(event.command.guild_id)["misc"].update_one(
             bsoncxx::builder::basic::make_document(
                 bsoncxx::builder::basic::kvp("type", "settings")
             ),

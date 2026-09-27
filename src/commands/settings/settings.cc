@@ -16,7 +16,7 @@ namespace commands::settings {
         }
 
         mongocxx::database db = db::get_database(event.command.guild_id);
-        auto settings_doc = db.collection("misc").find_one(bsoncxx::builder::basic::make_document(
+        auto settings_doc = db["misc"].find_one(bsoncxx::builder::basic::make_document(
             bsoncxx::builder::basic::kvp("type", "settings")
         ));
 

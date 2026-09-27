@@ -46,13 +46,13 @@ namespace voice {
             new_channel.set_name(global_name + "'s Apartment");
         }
         else {
-            auto default_name = result->view().find("default_apartment_name");
+            auto default_name = result->view()["default_apartment_name"];
 
-            if (default_name == result->view().end()) {
+            if (!default_name) {
                 new_channel.set_name(global_name + "'s Apartment");
             }
             else {
-                new_channel.set_name(static_cast<std::string>(default_name->get_string().value));
+                new_channel.set_name(static_cast<std::string>(default_name.get_string().value));
             }
         }
 

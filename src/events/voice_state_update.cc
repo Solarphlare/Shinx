@@ -18,7 +18,7 @@ namespace events {
     dpp::task<void> handle_voice_state_update(const dpp::voice_state_update_t& event) {
         std::unordered_map<dpp::snowflake, dpp::snowflake> apartments = co_await db::voice::get_apartments(event.owner, event.state.guild_id);
 
-        auto settings_doc = db::get_database(event.state.guild_id).collection("misc").find_one(
+        auto settings_doc = db::get_database(event.state.guild_id)["misc"].find_one(
             bsoncxx::builder::basic::make_document(
                 bsoncxx::builder::basic::kvp("type", "settings")
             )
