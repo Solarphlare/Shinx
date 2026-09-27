@@ -2,6 +2,7 @@
 #include <dpp/dpp.h>
 #include <bsoncxx/builder/basic/document.hpp>
 #include <random>
+#include <dpp/json.h>
 #include "db/mongo_instance.h"
 
 static const char hex_characters[] = "0123456789abcdef";
@@ -20,48 +21,78 @@ namespace commands::settings {
             bsoncxx::builder::basic::kvp("type", "settings")
         ));
 
-        dpp::interaction_modal_response modal("settings_modal_" + generate_random_hex_string(), "Settings");
+        // DPP doesn't have support for label descriptions yet,
+        // so we send raw JSON instead of using DPP methods here.
+        dpp::json payload = {
+            {"type", dpp::ir_modal_dialog},
+            {"data", {
+                {"title", "Settings"},
+                {"custom_id", "settings_modal_" + generate_random_hex_string()},
+                {"components", {
+                    {
+                        {"type", dpp::cot_label},
+                        {"label", "Lobby Channel"},
+                        {"description", "The voice channel users can join to create a new apartment channel."},
+                        {"component", {
+                            {"type", dpp::cot_channel_selectmenu},
+                            {"custom_id", "lobby_channel_id"},
+                            {"channel_types", {dpp::channel_type::CHANNEL_VOICE}},
+                            {"max_values", 1U},
+                            {"required", true}
+                        }}
+                    },
+                    {
+                        {"type", dpp::cot_label},
+                        {"label", "Apartment Category"},
+                        {"description", "THe category in which apartment channels should be created."},
+                        {"component", {
+                            {"type", dpp::cot_channel_selectmenu},
+                            {"custom_id", "apartment_category_id"},
+                            {"channel_types", {dpp::channel_type::CHANNEL_CATEGORY}},
+                            {"max_values", 1U},
+                            {"required", true}
+                        }}
+                    }
+                }}
+            }},
+        };
 
-        auto lobby_channel_select = dpp::component()
-            .set_label("Lobby Channel")
-            .set_id("lobby_channel_id")
-            .set_type(dpp::cot_channel_selectmenu)
-            .set_description("The voice channel users can join to create a new apartment.")
-            .add_channel_type(dpp::channel_type::CHANNEL_VOICE)
-            .set_required(true)
-            .set_max_values(1);
-
+        // set default values
         if (settings_doc) {
             auto lobby_channel_id = settings_doc->view()["lobby_channel_id"];
-
-            if (lobby_channel_id) {
-                lobby_channel_select.add_default_value(static_cast<std::string>(lobby_channel_id.get_string().value), dpp::component_default_value_type::cdt_channel);
-            }
-        }
-
-        modal.add_component(lobby_channel_select);
-
-        auto apartment_category_id_select = dpp::component()
-            .set_label("Apartment Category")
-            .set_id("apartment_category_id")
-            .set_description("The category in which apartments should be created.")
-            .set_type(dpp::cot_channel_selectmenu)
-            .add_channel_type(dpp::channel_type::CHANNEL_CATEGORY)
-            .set_required(true)
-            .set_max_values(1);
-
-
-        if (settings_doc) {
             auto apartment_category_id = settings_doc->view()["apartment_category_id"];
 
+            if (lobby_channel_id) {
+                payload["data"]["components"][0]["component"]["default_values"] = {
+                    {
+                        {"id", static_cast<std::string>(lobby_channel_id.get_string().value)},
+                        {"type", "channel"}
+                    }
+                };
+            }
+
             if (apartment_category_id) {
-                apartment_category_id_select.add_default_value(static_cast<std::string>(apartment_category_id.get_string().value), dpp::component_default_value_type::cdt_channel);
+                payload["data"]["components"][1]["component"]["default_values"] = {
+                    {
+                        {"id", static_cast<std::string>(apartment_category_id.get_string().value)},
+                        {"type", "channel"}
+                    }
+                };
             }
         }
 
-        modal.add_component(apartment_category_id_select);
-
-        co_await event.co_dialog(modal);
+        event.owner->post_rest(
+            API_PATH "/interactions",
+            std::to_string(event.command.id),
+            dpp::utility::url_encode(event.command.token) + "/callback",
+            dpp::m_post,
+            payload.dump(),
+            [](dpp::json& response, const dpp::http_request_completion_t& http) {
+                if (http.status < 200 || http.status > 299) {
+                    std::cerr << "Failed to show modal: (" << http.status << ") " << http.body << '\n';
+                }
+            }
+        );
     }
 }
 
