@@ -6,6 +6,19 @@ services:
       - BOT_TOKEN=${BOT_TOKEN:?BOT_TOKEN must be set}
     depends_on:
       - db
+    networks:
+      - open-web-net
+      - internal-net
 
   db:
     image: mongo:8.0.4
+    networks:
+      - internal-net
+
+networks:
+  open-web-net:
+    driver: bridge
+  internal-net:
+    driver: bridge
+    internal: true
+
