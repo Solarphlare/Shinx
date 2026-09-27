@@ -2,3 +2,4 @@
 build/
 shinx
 .env
+.DS_Store
