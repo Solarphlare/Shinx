@@ -13,6 +13,8 @@
 
 #include "commands/config/default_name.h"
 
+#include "commands/settings/settings.h"
+
 #include "db/voice_interface.h"
 #include "types.h"
 
@@ -23,7 +25,7 @@ std::unordered_map<std::string, std::function<dpp::task<void>(const dpp::slashco
     {"limit", commands::limit::execute},
     {"permit", commands::permit::execute},
     {"claim", commands::claim::execute},
-    {"deny", commands::deny::execute}
+    {"deny", commands::deny::execute},
 };
 
 std::unordered_map<config_option, std::function<dpp::task<void>(const dpp::slashcommand_t&)>> config_set_commands = {
@@ -32,6 +34,10 @@ std::unordered_map<config_option, std::function<dpp::task<void>(const dpp::slash
 
 std::unordered_map<config_option, std::function<dpp::task<void>(const dpp::slashcommand_t&)>> config_reset_commands = {
     {config_option::default_apt_name, commands::config::default_name::reset}
+};
+
+std::unordered_map<std::string, std::function<dpp::task<void>(const dpp::slashcommand_t&)>> standalone_commands = {
+    {"settings", commands::settings::execute}
 };
 
 namespace events {
@@ -61,6 +67,11 @@ namespace events {
                 if (config_reset_commands.find(option_val) != config_reset_commands.end()) {
                     co_await config_reset_commands[option_val](event);
                 }
+            }
+        }
+        else {
+            if (standalone_commands.find(event.command.get_command_name()) != standalone_commands.end()) {
+                co_await standalone_commands[event.command.get_command_name()](event);
             }
         }
     }

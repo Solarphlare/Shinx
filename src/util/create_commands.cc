@@ -58,8 +58,12 @@ namespace util {
                 .add_option(config_setting)
         );
 
+        dpp::slashcommand settings("settings", "Configure the bot", bot.me.id);
+        settings.set_default_permissions(0);
+        settings.set_interaction_contexts({dpp::itc_guild});
+
         // This replaces the application's complete global command list.
-        const std::vector<dpp::slashcommand> commands{voice, config};
+        const std::vector<dpp::slashcommand> commands{voice, config, settings};
         dpp::confirmation_callback_t callback = co_await bot.co_global_bulk_command_create(commands);
         if (callback.is_error()) {
             std::cerr << "Failed to register slash commands: " << callback.get_error().human_readable << "\n";

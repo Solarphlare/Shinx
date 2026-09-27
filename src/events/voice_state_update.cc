@@ -5,21 +5,29 @@
 #include <algorithm>
 #include <bsoncxx/builder/basic/document.hpp>
 
-#include "constants.h"
 #include "globals/voice_globals.h"
 
 #include "voice/create_apartment.h"
 #include "voice/handle_user_disconnect.h"
 
 #include "db/voice_interface.h"
-
+#include "db/mongo_instance.h"
 #include "util/util.h"
 
 namespace events {
     dpp::task<void> handle_voice_state_update(const dpp::voice_state_update_t& event) {
         std::unordered_map<dpp::snowflake, dpp::snowflake> apartments = co_await db::voice::get_apartments(event.owner, event.state.guild_id);
 
-        if (event.state.channel_id == LOBBY_CHANNEL_ID) {
+        auto settings_doc = db::get_database(event.state.guild_id).collection("misc").find_one(
+            bsoncxx::builder::basic::make_document(
+                bsoncxx::builder::basic::kvp("type", "settings")
+            )
+        );
+
+        if (!settings_doc || !settings_doc->view()["lobby_channel_id"]) co_return;
+        const dpp::snowflake lobby_channel_id = static_cast<std::string>(settings_doc->view()["lobby_channel_id"].get_string().value);
+
+        if (event.state.channel_id == lobby_channel_id) {
             co_await voice::create_apartment(event);
         }
         else if (event.state.channel_id.empty()) {

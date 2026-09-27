@@ -4,7 +4,6 @@
 #include <bsoncxx/builder/stream/document.hpp>
 
 #include "globals/voice_globals.h"
-#include "constants.h"
 #include "db/voice_interface.h"
 #include "db/mongo_instance.h"
 #include "util/util.h"
@@ -24,6 +23,12 @@ namespace voice {
         dpp::channel new_channel = dpp::channel();
 
         auto database = db::get_database(event.state.guild_id);
+        auto settings_doc = database["misc"].find_one(bsoncxx::builder::basic::make_document(
+            bsoncxx::builder::basic::kvp("type", "settings")
+        ));
+
+        if (!settings_doc->view()["apartment_category_id"]) co_return;
+
         auto config_db = database["user_config"];
 
         auto result = config_db.find_one(make_document(kvp("_id", member.user_id.str())));
@@ -51,7 +56,7 @@ namespace voice {
             }
         }
 
-        new_channel.set_parent_id(VOICE_CHANNEL_CATEGORY_ID);
+        new_channel.set_parent_id(static_cast<std::string>(settings_doc->view()["apartment_category_id"].get_string().value));
         new_channel.set_type(dpp::channel_type::CHANNEL_VOICE);
         new_channel.set_guild_id(event.state.guild_id);
 
