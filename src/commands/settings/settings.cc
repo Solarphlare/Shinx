@@ -5,9 +5,6 @@
 #include <dpp/json.h>
 #include "db/mongo_instance.h"
 
-static const char hex_characters[] = "0123456789abcdef";
-std::mt19937 generator((std::random_device())());
-std::uniform_int_distribution<std::size_t> distribution(0, 15);
 std::string generate_random_hex_string();
 
 namespace commands::settings {
@@ -97,6 +94,10 @@ namespace commands::settings {
 }
 
 std::string generate_random_hex_string() {
+    static constexpr const char* hex_characters = "0123456789abcdef";
+    static std::mt19937 generator((std::random_device())());
+    static std::uniform_int_distribution<std::size_t> distribution(0, 15);
+
     std::string result;
     result.reserve(8);
 
