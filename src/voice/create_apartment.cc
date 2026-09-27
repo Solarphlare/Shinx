@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "db/voice_interface.h"
 #include "db/mongo_instance.h"
+#include "util/util.h"
 
 using bsoncxx::builder::basic::make_document;
 using bsoncxx::builder::basic::kvp;
@@ -32,14 +33,8 @@ namespace voice {
             global_name = member.get_user()->global_name.empty() ? member.get_user()->username : member.get_user()->global_name;
         }
         else {
-            auto user_callback = co_await event.owner->co_user_get(member.user_id);
-            if (user_callback.is_error()) {
-                global_name = member.user_id.str();
-            }
-            else {
-                dpp::user_identified user = user_callback.get<dpp::user_identified>();
-                global_name = user.global_name.empty() ? user.username : user.global_name;
-            }
+            dpp::user_identified user = co_await util::get_user(event.owner, member.user_id);
+            global_name = user.global_name.empty() ? user.username : user.global_name;
         }
 
         if (!result) {
