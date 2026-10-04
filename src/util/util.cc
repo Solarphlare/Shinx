@@ -61,5 +61,21 @@ namespace util {
 
         co_return callback.get<dpp::guild_map>();
     }
+
+    dpp::task<dpp::snowflake> get_bot_owner(dpp::cluster* bot) {
+        static std::optional<dpp::snowflake> owner_id;
+        if (owner_id) {
+            co_return *owner_id;
+        }
+
+        dpp::confirmation_callback_t callback = co_await bot->co_current_application_get();
+        if (callback.is_error()) {
+            throw std::runtime_error("Failed to get owner: " + callback.get_error().message);
+        }
+
+        dpp::application application = callback.get<dpp::application>();
+        owner_id = application.owner.id;
+        co_return application.owner.id;
+    }
 }
 

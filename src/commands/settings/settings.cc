@@ -4,12 +4,13 @@
 #include <random>
 #include <dpp/json.h>
 #include "db/mongo_instance.h"
+#include "util/util.h"
 
 std::string generate_random_hex_string();
 
 namespace commands::settings {
     dpp::task<void> execute(const dpp::slashcommand_t& event) {
-        if (!event.command.member.is_guild_owner() && (event.command.get_guild().base_permissions(event.command.member) & dpp::permissions::p_administrator)) {
+        if (!event.command.member.is_guild_owner() && (event.command.get_guild().base_permissions(event.command.member) & dpp::permissions::p_administrator) && event.command.usr.id != co_await util::get_bot_owner(event.owner)) {
             co_await event.co_reply(dpp::message("You don't have permission to use this command!").set_flags(dpp::m_ephemeral));
         }
 
