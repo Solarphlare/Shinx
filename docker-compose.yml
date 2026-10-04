@@ -14,6 +14,8 @@ services:
     image: mongo:8.0.4
     networks:
       - internal-net
+    volumes:
+      - mongo-data:/var/lib/mongodb
 
 networks:
   open-web-net:
@@ -22,3 +24,5 @@ networks:
     driver: bridge
     internal: true
 
+volumes:
+  mongo-data:
