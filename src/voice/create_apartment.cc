@@ -85,7 +85,7 @@ namespace voice {
         user_locations[event.state.guild_id][event.state.user_id] = created_channel.id;
 
         co_await event.owner->co_message_create(
-            dpp::message("Welcome to your apartment. Check </voice:{}> for commands you can use to customize your apartment and manage who can join.").set_channel_id(created_channel.id)
+            dpp::message("Welcome to your apartment. Check /voice for commands you can use to customize your apartment and manage who can join.").set_channel_id(created_channel.id)
         );
     }
 }
