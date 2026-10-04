@@ -15,7 +15,7 @@ services:
     networks:
       - internal-net
     volumes:
-      - mongo-data:/var/lib/mongodb
+      - mongo-data:/data/db
 
 networks:
   open-web-net:
