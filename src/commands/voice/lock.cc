@@ -18,11 +18,10 @@ namespace commands::lock {
         }
 
         dpp::channel channel = callback.get<dpp::channel>();
-        dpp::permission_overwrite overwrite = *std::find_if(channel.permission_overwrites.begin(), channel.permission_overwrites.end(),
+        auto overwrite = std::find_if(channel.permission_overwrites.begin(), channel.permission_overwrites.end(),
             [&event](const dpp::permission_overwrite& o) { return o.type == dpp::ot_role && o.id == event.command.guild_id; });
 
-        if (overwrite.deny & dpp::p_connect) {
-            std::cout << overwrite.deny << "\n";
+        if (overwrite != channel.permission_overwrites.end() && overwrite->deny & dpp::p_connect) {
             co_await event.co_reply(dpp::message("Your apartment is already locked.").set_flags(dpp::m_ephemeral));
             co_return;
         }
